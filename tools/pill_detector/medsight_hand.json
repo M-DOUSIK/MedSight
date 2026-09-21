@@ -1,0 +1,8 @@
+{
+  "Profiles": {
+    "medsight-hand": {
+      "memory_pool": "./medsight_hand.mpool",
+      "options": "--optimization 3 --all-buffers-info --cache-maintenance --Oauto-sched --native-float --enable-virtual-mem-pools --Omax-ca-pipe 4 --Ocache-opt --Os"
+    }
+  }
+}

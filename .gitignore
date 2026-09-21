@@ -1,0 +1,18 @@
+﻿# Build output, ignored WHOLE rather than by extension.
+#
+# Listing extensions left the generated makefiles, sources.mk, objects.list
+# and the .json argument files behind, and those carry the absolute path of
+# the machine that built them. A judge who builds this tree in place would
+# otherwise be one "git add -A" away from committing somebody's home
+# directory. Nothing in either directory is authored; a clean build makes all
+# of it.
+firmware/STM32CubeIDE/FSBL/Debug/
+firmware/STM32CubeIDE/FSBL/Release/
+
+# STM32CubeIDE's workspace state, if anyone opens or builds this tree in
+# place. It is per-machine and belongs to nobody else.
+.metadata/
+__pycache__/
+
+.DS_Store
+Thumbs.db

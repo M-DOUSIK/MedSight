@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MedSight - offline medication dispenser on µT-Kernel 3.0</title>
+<meta name="description" content="MedSight is an offline medication dispenser and adherence recorder built on µT-Kernel 3.0 and an STM32N6570-DK. Four neural networks on the NPU, no cloud. TRON Programming Contest 2026.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <p class="tag">TRON Programming Contest 2026 · RTOS Application</p>
+    <h1>MedSight</h1>
+    <p class="one-liner">
+      Most dispensers release pills and assume the rest. MedSight recognises
+      the patient by face, <strong>counts every pill physically leaving the
+      turntable</strong>, and records what actually happened.
+    </p>
+
+    <video class="banner" autoplay muted loop playsinline
+           poster="media/hero_poster.jpg"
+           aria-label="The assembled device turning through six views: the
+                       front three-quarter with its screen lit on the home
+                       screen, the front, both sides, the back with its power
+                       button, and the turntable seen from above.">
+      <source src="media/hero_loop.mp4" type="video/mp4">
+      <img class="banner" src="media/hero_poster.jpg"
+           alt="The assembled device seen from the front left, its 5 inch
+                screen lit on the home screen.">
+    </video>
+
+    <div class="buttons">
+      <a class="btn primary" href="https://github.com/M-DOUSIK/MedSight">
+        <span class="b-title">Source code</span>
+        <span class="b-sub">Full repository, firmware and documents · Apache-2.0</span>
+      </a>
+      <a class="btn" href="docs/slides/MedSight_slides.pptx">
+        <span class="b-title">Slides</span>
+        <span class="b-sub">Fifteen-slide introduction · PowerPoint</span>
+      </a>
+      <a class="btn" href="#demo">
+        <span class="b-title">Watch it work</span>
+        <span class="b-sub">One dose, start to finish</span>
+      </a>
+    </div>
+    <p class="loop-cap" style="margin-top:14px;margin-bottom:0">
+      Prefer a direct download?
+      <a href="https://github.com/M-DOUSIK/MedSight/archive/refs/heads/main.zip">The
+      complete source as a ZIP</a> &nbsp;·&nbsp;
+      <a href="pdf/MedSight_Handbook_PRINT.pdf">the handbook, print edition</a>.
+    </p>
+  </div>
+</header>
+
+<!-- ============ THE PROBLEM ============ -->
+<section>
+  <div class="wrap">
+    <p class="kicker">Why</p>
+    <h2>Between a fifth and a half of older patients do not take their medication as prescribed</h2>
+    <p class="lede">
+      And in residential care it fails differently - through workload,
+      interruptions and paper records rather than forgetfulness alone.
+    </p>
+    <div class="figs">
+      <div class="fig">
+        <div class="v">21-55%</div>
+        <div class="l">Non-adherence among older patients on long-term
+          medication. <strong>Amato et al., 2026</strong>, with a second 2026
+          review across 128 studies searched to the end of 2024 reaching the
+          same conclusion (<strong>Scotti et al.</strong>). The familiar 50%
+          line is the WHO's 2003 baseline, not a current measurement.</div>
+      </div>
+      <div class="fig">
+        <div class="v">69.5%</div>
+        <div class="l">Of 256 residents across 55 care homes had at least one
+          medication error, at a mean of 1.9 each, taking 8.0 medicines each.
+          <strong>Barber et al., 2009</strong></div>
+      </div>
+      <div class="fig">
+        <div class="v">1 in 6</div>
+        <div class="l">People worldwide will be 60 or over by 2030, and that
+          population doubles to 2.1 billion by 2050.
+          <strong>WHO, 2025</strong></div>
+      </div>
+    </div>
+    <p>
+      Every figure on this page carries a source. The full evidence base, with
+      the uncertainty each source reports and two widely-quoted numbers
+      corrected, is in
+      <a href="research/BIBLIOGRAPHY.md">the bibliography</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ============ HOW A DOSE WORKS ============ -->
+<section class="band">
+  <div class="wrap">
+    <p class="kicker">How it works</p>
+    <h2>Five steps, and the fourth is the one that matters</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <div class="t">The window opens</div>
+        <p class="d">A µT-Kernel alarm handler fires exactly once. A banner names
+          the patient and the time; three short beeps.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <div class="t">Identification</div>
+        <p class="d">CenterFace detects the face, MobileFaceNet embeds it,
+          cosine match against the gallery. <strong>209 ms</strong>, every
+          time.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <div class="t">Dispense</div>
+        <p class="d">The turntable turns. Each pill passes the infrared sensor
+          on the way down the chute - a detection pulse measured at
+          <strong>17-46 ms</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <div class="t">Counted, not timed</div>
+        <p class="d">With the mechanism attached the bar advances
+          <strong>once per sensor pulse</strong>, so it reports what the
+          hardware did. The timed animation exists only in the simulation
+          build, where there is no sensor to read.</p>
+      </div>
+      <div class="step">
+        <div class="n">05</div>
+        <div class="t">Confirmation</div>
+        <p class="d">Action recognition observes the window; the
+          <strong>patient's button press remains the confirming action</strong>.
+          One record to the card.</p>
+      </div>
+    </div>
+    <div class="note">
+      <p><strong>The log records what actually came out</strong>, written once
+      after the outcome is known -
+      <code>DISPENSE: name 3 requested, 3 counted (OK)</code> - never two claims
+      about one event.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE AI ============ -->
+<section class="dark">
+  <div class="wrap">
+    <p class="kicker">TRON × AI</p>
+    <h2>Four networks on the Neural-ART NPU, and no cloud anywhere</h2>
+    <p class="lede">
+      Every inference runs on the board. Each network below is listed with its
+      origin and the licence that governs it.
+    </p>
+
+    <div class="tablewrap">
+      <table>
+        <tr><th>Network</th><th>Decides</th><th>Origin</th><th>Licence</th></tr>
+        <tr>
+          <td>CenterFace</td>
+          <td>Detects a face and emits five landmarks with it, both mouth corners among them</td>
+          <td class="theirs">STMicroelectronics</td>
+          <td class="theirs">SLA0044</td>
+        </tr>
+        <tr>
+          <td>MobileFaceNet</td>
+          <td>Encodes the face crop as a 128-dimension embedding for cosine matching</td>
+          <td class="theirs">STMicroelectronics</td>
+          <td class="theirs">SLA0044</td>
+        </tr>
+        <tr>
+          <td>MediaPipe hand landmarks</td>
+          <td>21 keypoints, giving the fingertip position during the confirmation window</td>
+          <td class="theirs">Google. <strong>Not ours.</strong> We selected,
+            quantised, compiled and integrated it - we did not train it</td>
+          <td class="theirs">Apache-2.0</td>
+        </tr>
+        <tr>
+          <td><strong>Pill detector</strong></td>
+          <td>Single-class detection in a mouth-centred region. Corroboration only</td>
+          <td class="ours">Trained by this project</td>
+          <td class="theirs">AGPL-3.0, from the training framework - <a href="docs/LICENSING.md">resolved</a></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="note green">
+      <p>The pill detector was trained here on a public pill dataset and
+      adapted to the accelerator: the convolutional body runs as 8-bit integer
+      on the NPU and the YOLO decode on the Cortex-M55. On the validation set
+      the 8-bit model matches the floating-point one, but at the deployment
+      distance a pill is about an 8-pixel object and per-frame detection is
+      around 7%, so it corroborates the hand geometry rather than deciding on
+      its own.</p>
+      <p>It carries <strong>AGPL-3.0</strong> because Ultralytics YOLOv8
+      trained it and that licence follows the weights, so the whole training
+      pipeline is published with them in
+      <a href="https://github.com/M-DOUSIK/MedSight/tree/main/tools/pill_detector"><code>tools/pill_detector/</code></a>.</p>
+    </div>
+
+    <p>
+      Everything around the face networks is our code too: the frame snapshot,
+      the CenterFace box decode, L2 normalisation, int8 quantisation, cosine
+      gallery matching and SD persistence. Details in
+      <a href="docs/TECHNICAL_REFERENCE.md">the technical reference</a>; full attribution in
+      <a href="docs/THIRD_PARTY_SOFTWARE.md">the third-party inventory</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ============ THE RTOS ============ -->
+<section>
+  <div class="wrap">
+    <p class="kicker">The RTOS</p>
+    <h2>Why this is a µT-Kernel application, specifically</h2>
+    <p class="lede">
+      Real-time behaviour, power and memory footprint, each as a measured
+      figure and the kernel mechanism behind it.
+    </p>
+
+    <div class="figs">
+      <div class="fig">
+        <div class="v">89.6%</div>
+        <div class="l">of wall-clock time asleep in <code>WFI</code>, waking
+          ~980 times a second. The vendored BSP ships <code>low_pow()</code>
+          <strong>empty</strong>; ours forwards to a real <code>WFI</code>.</div>
+      </div>
+      <div class="fig">
+        <div class="v">85.6 / 63.0%</div>
+        <div class="l">of the code and data regions used, leaving 147 KB and
+          378 KB free.</div>
+      </div>
+    </div>
+
+    <p>What the kernel is used for, and why each one:</p>
+
+    <div class="tablewrap">
+      <table>
+        <tr><th>Primitive</th><th>What it does here</th></tr>
+        <tr><td><code>tk_cre_tsk</code></td>
+          <td><strong>Six tasks</strong>, priorities derived
+            rate-monotonically. The AI task sits <em>below</em> the interface
+            deliberately, which is what keeps touch and the physical button
+            alive while the accelerator works.</td></tr>
+        <tr><td><code>tk_cre_flg</code><br><code>tk_wai_flg</code></td>
+          <td><strong>Inference is dispatched through an event flag.</strong>
+            One blocking call tells apart face found, no face, and no answer at
+            all. A queue, a semaphore or a mutex cannot say that.</td></tr>
+        <tr><td><code>tk_cre_alm</code><br><code>tk_sta_alm</code></td>
+          <td><strong>Dose scheduling is an alarm handler</strong>, not a task
+            polling the clock. Polling would wake 8,640 times a day in order to
+            act four times.</td></tr>
+        <tr><td><code>tk_cre_mbf</code><br><code>tk_cre_mtx</code></td>
+          <td>The logger's queue, so no caller ever waits on an SD write, and
+            the firmware's one mutex: the clock, which has two readers.</td></tr>
+        <tr><td><code>low_pow()</code></td>
+          <td>The vendored board support package ships its idle hook
+            <strong>empty</strong>. Ours executes <code>WFI</code> and accounts
+            for the cycles, which is where the 89.6% comes from.</td></tr>
+      </table>
+    </div>
+
+    <p>
+      <strong>One file talks to the kernel.</strong> Every call above lives in
+      <code>ms_osal.c</code>, behind an abstraction the rest of the firmware
+      was written against, so the kernel's use is deliberate and in one place
+      rather than scattered. Two idioms were evaluated and deliberately not
+      adopted, with the reasoning recorded: a fixed-size memory pool, and an
+      event flag for the confirm state. Neither would have done any work here.
+    </p>
+    <p>
+      Every measurement above, and how it was taken, is in
+      <a href="docs/TECHNICAL_REFERENCE.md">the technical reference</a>.
+      The evaluation path is in
+      <a href="docs/MEDSIGHT_HANDBOOK.md">the handbook</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ============ WHAT COMES NEXT ============ -->
+<section class="band">
+  <div class="wrap">
+    <p class="kicker">Where it stands</p>
+    <h2>A working prototype, and the plan for each gap</h2>
+    <p class="lede">
+      MedSight dispenses real pills, counts them, recognises the patient and
+      keeps a record, on its own power with no computer attached. Five things
+      are not done yet, and each has a plan.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <div class="t">One medication at a time</div>
+        <p class="d">One turntable, and the record stores a count rather than a
+          drug name. <strong>Next:</strong> six to eight stacked dispensing
+          modules. The
+          interface already draws four slots with three greyed out, and the
+          dispense call already returns what was counted, so the firmware change
+          is additive.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <div class="t">It does not know the stock level</div>
+        <p class="d">The first sign of an empty turntable is a short dose.
+          <strong>Next, and the cheapest useful fix:</strong> a carer-entered
+          "filled with N", decremented by <em>counted</em> pills rather than
+          assumed ones. It uses screens that already exist.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <div class="t">A missed dose stays in the room</div>
+        <p class="d">No radio in this build, which kept the prototype
+          achievable. <strong>Next, and top of the roadmap:</strong> a carer
+          alert over Wi-Fi and a patient-worn band. The scheduler hook already
+          fires once per window; the work is the radio and its security design.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <div class="t">The face check can be shown a photograph</div>
+        <p class="d">The match is a still-image comparison and does not test
+          for a live face. <strong>Next:</strong> a passive liveness check on
+          the camera and accelerator already in use, applied before a match is
+          accepted.</p>
+      </div>
+      <div class="step">
+        <div class="n">05</div>
+        <div class="t">The housing does not lock</div>
+        <p class="d">A printed prototype shell. The device <em>withholds</em> -
+          it refuses a dose outside its window and to a face it does not
+          recognise - but it does not <em>lock</em>. <strong>Next:</strong> a
+          lockable enclosure, tamper detection, and a vibration sensor so the
+          log can say when the unit was shaken.</p>
+      </div>
+    </div>
+
+    <p>
+      The device counts pills out and corroborates a swallowing gesture. It
+      cannot prove somebody swallowed, and no device of this class can, which
+      is why the patient's button press stays the confirming action. The rest
+      is in <a href="docs/MEDSIGHT_HANDBOOK.md">the handbook</a>, Part 10.
+    </p>
+  </div>
+</section>
+
+<!-- ============ HARDWARE ============ -->
+<section>
+  <div class="wrap">
+    <p class="kicker">The hardware</p>
+    <h2>Eleven wires. No resistors, no transistors, no level shifters.</h2>
+
+    <figure>
+      <img src="docs/images/cad_parts_sheet.jpg"
+           alt="The three printed parts, rendered from their STL files, with numbered callouts">
+      <figcaption>The three printed assemblies, drawn from the STL files that
+        go to the printer. Every callout resolves to a row in the parts
+        table.</figcaption>
+    </figure>
+
+    <div class="tablewrap">
+      <table>
+        <tr><th>Item</th><th>Part</th></tr>
+        <tr><td>Processor</td><td>Arm Cortex-M55 @ 800 MHz + ST Neural-ART NPU @ 1 GHz, on an STM32N6570-DK</td></tr>
+        <tr><td>Display</td><td>5″ 800 × 480 RGB565 with GT911 capacitive touch - 22 screens from one design system</td></tr>
+        <tr><td>Camera</td><td>Sony IMX335 via DCMIPP</td></tr>
+        <tr><td>Actuator</td><td>28BYJ-48 stepper through a ULN2003A, driven half-step, one atomic register write per step</td></tr>
+        <tr><td>Sensor</td><td>Infrared proximity on EXTI0, both edges timestamped in the ISR</td></tr>
+        <tr><td>Audio</td><td>Active piezo, DC switched, five patterns</td></tr>
+        <tr><td>Storage</td><td>microSD - the only storage in the device. The unit ships with its card supplied separately, and until the card is fitted the home screen says so and nothing is recorded</td></tr>
+        <tr><td>Power</td><td>5 V over USB-C. It boots itself from external flash and has run a complete dispense on battery, with no computer attached</td></tr>
+      </table>
+    </div>
+
+    <p>
+      The full annotated parts view, the specifications block and the interface
+      map are in
+      <a href="docs/HARDWARE_SPEC.md"><strong>HARDWARE_SPEC.md</strong></a>;
+      the wiring, with a diagram and a bring-up order, is in the same
+      document.
+    </p>
+  </div>
+</section>
+
+<!-- ============ DEMO VIDEO ============ -->
+<section class="band" id="demo">
+  <div class="wrap">
+    <p class="kicker">Video</p>
+    <h2>One dose, start to finish</h2>
+    <p class="lede">
+      Face match → dispense → pills counted by the sensor → confirm → the audit
+      line in carer mode. A real dispense, not a simulated one.
+    </p>
+    <video class="demo-video" controls preload="metadata"
+           poster="media/demo_poster.jpg">
+      <source src="media/demo.mp4" type="video/mp4">
+      Your browser cannot play this video. It is also in the repository at
+      <code>media/demo.mp4</code>.
+    </video>
+    <p style="margin-top:14px">
+      A written walkthrough of the same sequence, including a five-minute path
+      and a ten-minute one, is in
+      <a href="docs/MEDSIGHT_HANDBOOK.md">the handbook</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div class="col">
+        <h3>Start here</h3>
+        <ul>
+          <li><a href="docs/MEDSIGHT_HANDBOOK.md"><strong>Handbook</strong></a> - the whole thing in one document</li>
+          <li><a href="pdf/MedSight_Handbook_PRINT.pdf">Handbook, print edition</a></li>
+          <li><a href="docs/slides/MedSight_slides.pptx">Introduction slides</a></li>
+          <li><a href="https://github.com/M-DOUSIK/MedSight">The repository</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>The detail</h3>
+        <ul>
+          <li><a href="docs/HARDWARE_SPEC.md">Hardware spec</a></li>
+          <li><a href="docs/TECHNICAL_REFERENCE.md">Technical reference</a></li>
+          
+        </ul>
+      </div>
+      <div class="col">
+        <h3>Provenance</h3>
+        <ul>
+          <li><a href="docs/THIRD_PARTY_SOFTWARE.md">Third-party software</a></li>
+          <li><a href="docs/LICENSING.md">Licensing</a></li>
+          <li><a href="docs/PROGRAM_PLAN_RECONCILIATION.md">Promised against built</a></li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:8px">
+      <strong style="color:#F5EEEC">MedSight</strong> · TRON Programming Contest
+      2026, RTOS Application · Entry 54916.
+      <br>
+      Built by <strong style="color:#F5EEEC">Dousik Manokaran</strong>
+      (applicant), <strong style="color:#F5EEEC">Howard Nikhil</strong>,
+      <strong style="color:#F5EEEC">Gaurav V R</strong>,
+      <strong style="color:#F5EEEC">Dillimaran K</strong> and
+      <strong style="color:#F5EEEC">Abirami M</strong>, supervised by
+      Dr. G. Santhanamari and Dr. D. Selvakumar. Who did what is in the
+      <a href="docs/MEDSIGHT_HANDBOOK.md">handbook</a>.
+      <br>
+      Built with µT-Kernel 3.0, © TRON Forum and Ken Sakamura, under T-License
+      2.1 / 2.2. Board supplied by the TRON Forum.
+      <br>
+      MedSight's own code is Apache-2.0; the tree is multi-licensed and
+      <a href="docs/LICENSING.md">LICENSING.md</a> says which terms govern which
+      files.
+    </p>
+    <p style="margin-bottom:0">
+      <strong style="color:#F5EEEC">This build has no radio.</strong>
+      Wi-Fi, Ethernet and BLE are never initialised, and no code path can
+      transmit. Connectivity is planned work: a carer alert when a dose is
+      missed, and a band that signals the patient one is due. The
+      <a href="docs/MEDSIGHT_HANDBOOK.md">handbook</a> sets out what that has to
+      answer first.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

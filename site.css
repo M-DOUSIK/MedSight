@@ -1,0 +1,300 @@
+/* MedSight submission site.
+   Plain CSS. No framework, no build step, no custom properties, no grid -
+   this has to render correctly on an unfamiliar network in a browser nobody
+   chose. Flexbox with wrapping is the newest thing used. */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #F5EEEC;
+  color: #2B2321;
+  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: #1F6F78; }
+a:hover { color: #14535a; }
+
+/* The hero is dark, so the default teal link fails contrast against it.
+   Same problem, same fix, as the three palette colours the device's own UI
+   had to darken when it was first checked against WCAG AA. */
+.hero a { color: #7FC4CB; }
+.hero a:hover { color: #A8DCE1; }
+
+.wrap {
+  max-width: 940px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  background: #2B2321;
+  color: #F5EEEC;
+  padding-top: 34px;
+  padding-bottom: 38px;
+}
+.hero h1 {
+  font-size: 42px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+.hero .tag {
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #B9A9A3;
+  margin: 0 0 16px;
+}
+.hero .one-liner {
+  font-size: 21px;
+  line-height: 1.42;
+  margin: 0 0 24px;
+  color: #EADFDA;
+  max-width: 34em;
+}
+.hero .one-liner strong { color: #fff; }
+
+/* The opening banner. An animation of the device, not a diagram of it: the
+   first thing a visitor sees should carry the product rather than explain
+   it, and the explaining starts immediately below. */
+.banner {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  background: #1a1513;
+  border: 1px solid #443733;
+  margin: 0 0 26px;
+}
+.loop-cap {
+  font-size: 13px;
+  color: #B9A9A3;
+  margin: 0 0 26px;
+}
+
+/* ---------- the three buttons: nothing outranks these ---------- */
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+/* One card shape for all three, so the row reads as a set. The accent marks
+   the primary action rather than colouring every tile a different colour. */
+.hero a.btn, .btn {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  padding: 17px 44px 17px 19px;
+  border-radius: 12px;
+  background: rgba(245, 238, 236, 0.05);
+  border: 1px solid rgba(245, 238, 236, 0.17);
+  color: #F5EEEC;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+/* The chevron is drawn rather than typed, so it needs no glyph and inherits
+   the link colour. */
+.btn::after {
+  content: "";
+  position: absolute;
+  right: 19px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -5px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  opacity: .45;
+  transition: transform .18s ease, opacity .18s ease;
+}
+.hero a.btn:hover, .btn:hover {
+  background: rgba(245, 238, 236, 0.09);
+  border-color: rgba(245, 238, 236, 0.34);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.btn:hover::after { transform: translateX(3px) rotate(-45deg); opacity: .9; }
+.btn:focus-visible { outline: 2px solid #7FC4CB; outline-offset: 3px; }
+.btn .b-title {
+  display: block;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.btn .b-sub {
+  display: block;
+  font-size: 13.5px;
+  color: #B9A9A3;
+  margin-top: 5px;
+  line-height: 1.4;
+}
+.hero a.btn.primary, .btn.primary { background: #1F6F78; border-color: #2E8F99; }
+.hero a.btn.primary:hover, .btn.primary:hover { background: #24828C; border-color: #45AEB9; }
+.btn.primary .b-sub { color: #CDE6E8; }
+
+/* ---------- sections ---------- */
+
+section { padding-top: 44px; padding-bottom: 8px; }
+section.band { background: #EDE2DE; padding-bottom: 44px; }
+section.dark { background: #2B2321; color: #EADFDA; padding-bottom: 44px; }
+section.dark h2 { color: #fff; }
+section.dark a { color: #7FC4CB; }
+
+h2 {
+  font-size: 29px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0 0 6px;
+}
+.kicker {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8A7A74;
+  margin: 0 0 6px;
+}
+section.dark .kicker { color: #A99791; }
+.lede { font-size: 19px; color: #5A4C48; margin: 0 0 22px; max-width: 46em; }
+section.dark .lede { color: #C6B6B0; }
+
+p { margin: 0 0 15px; }
+ul { margin: 0 0 15px; padding-left: 1.15em; }
+li { margin-bottom: 8px; }
+
+/* ---------- dose flow ---------- */
+
+.steps { display: flex; flex-wrap: wrap; margin: 0 -6px 10px; }
+.step {
+  flex: 1 1 165px;
+  margin: 6px;
+  background: #fff;
+  border: 1px solid #DFD0CB;
+  border-radius: 10px;
+  padding: 15px 15px 16px;
+}
+.step .n {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #1F6F78;
+  margin-bottom: 7px;
+}
+.step .t { font-weight: 600; font-size: 17px; margin-bottom: 6px; line-height: 1.3; }
+.step .d { font-size: 14.5px; color: #6E5F5A; line-height: 1.45; margin: 0; }
+
+/* ---------- numbers ---------- */
+
+.figs { display: flex; flex-wrap: wrap; margin: 0 -10px 16px; }
+.fig { flex: 1 1 190px; margin: 10px; }
+.fig .v {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #7FC4CB;
+}
+.fig .l { font-size: 14.5px; color: #C6B6B0; line-height: 1.45; margin-top: 4px; }
+section:not(.dark) .fig .v { color: #1F6F78; }
+section:not(.dark) .fig .l { color: #6E5F5A; }
+
+/* ---------- tables ---------- */
+
+.tablewrap { overflow-x: auto; margin-bottom: 18px; }
+table { border-collapse: collapse; width: 100%; font-size: 15.5px; }
+th, td {
+  text-align: left;
+  padding: 9px 12px 9px 0;
+  border-bottom: 1px solid #DFD0CB;
+  vertical-align: top;
+}
+th {
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8A7A74;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ours { color: #2E7D4F; font-weight: 600; }
+.theirs { color: #6E5F5A; }
+
+/* ---------- callouts ---------- */
+
+.note {
+  background: #fff;
+  border-left: 5px solid #B2690F;
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 0 0 18px;
+}
+.note.red { border-left-color: #B3352C; }
+.note.green { border-left-color: #2E7D4F; }
+.note p:last-child { margin-bottom: 0; }
+section.dark .note { background: #382E2B; border-left-color: #D1843A; }
+
+/* ---------- figure ---------- */
+
+figure { margin: 0 0 18px; }
+figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid #DFD0CB;
+  background: #fff;
+}
+figcaption { font-size: 14px; color: #6E5F5A; margin-top: 8px; line-height: 1.45; }
+
+.demo-video {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid #DFD0CB;
+  background: #1a1513;
+}
+
+/* ---------- footer ---------- */
+
+footer {
+  background: #2B2321;
+  color: #B9A9A3;
+  padding-top: 32px;
+  padding-bottom: 40px;
+  font-size: 15px;
+  margin-top: 44px;
+}
+footer a { color: #7FC4CB; }
+footer h3 { color: #F5EEEC; font-size: 16px; margin: 0 0 8px; }
+.cols { display: flex; flex-wrap: wrap; margin: 0 -14px; }
+.col { flex: 1 1 230px; margin: 0 14px 20px; }
+.col ul { list-style: none; padding: 0; margin: 0; }
+.col li { margin-bottom: 5px; }
+
+code {
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 0.92em;
+  background: #EDE2DE;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+section.dark code { background: #3d3330; color: #EADFDA; }
+
+@media (max-width: 620px) {
+  body { font-size: 16px; }
+  .hero h1 { font-size: 31px; }
+  .hero .one-liner { font-size: 18px; }
+  h2 { font-size: 24px; }
+  .lede { font-size: 17px; }
+  .fig .v { font-size: 33px; }
+}

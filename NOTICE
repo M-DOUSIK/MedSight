@@ -1,0 +1,135 @@
+MedSight
+Copyright 2026 Dousik Manokaran and the MedSight contributors
+
+This product includes software and models developed by third parties.
+The complete inventory - name, rights holder, acquisition method and
+function for every component - is docs/THIRD_PARTY_SOFTWARE.md, and the
+per-file licence map is docs/LICENSING.md.
+
+The attributions below are the ones required by the licences themselves,
+reproduced here so they travel with any redistribution of this work.
+
+
+-- micro T-Kernel 3.0 BSP2 ---------------------------------------------
+
+  Copyright (C) 2006-2024 by Ken Sakamura.
+  Distributed by the TRON Forum under T-License 2.1 / 2.2.
+  https://github.com/tron-forum/mtk3bsp2_samples
+
+  Six of approximately 230 vendored files are modified. Every file
+  implementing a system call is byte-identical to upstream, and no
+  tk_* API signature or semantic was altered. The complete modification
+  table with the reason for each change is docs/THIRD_PARTY_SOFTWARE.md
+  sections 4 and 5.
+
+
+-- MediaPipe hand landmark model ---------------------------------------
+
+  Copyright 2021 The MediaPipe Authors / Google LLC.
+  Licensed under the Apache License, Version 2.0.
+
+  Model: "Hand Tracking (Lite/Full) with Fairness", October 2021.
+  Obtained through the STMicroelectronics model zoo, itself a conversion
+  of the PINTO model zoo entry 033_Hand_Detection_and_Tracking.
+
+  THIS MODEL WAS NOT TRAINED BY THIS PROJECT. MedSight selected it,
+  quantised it, compiled it to Neural-ART and integrated it. This notice
+  is required by Apache-2.0 section 4 and is the single most important
+  attribution in this file.
+
+  Note on use: in MediaPipe this model never sees a whole scene - a palm
+  detector runs first and hands it a tight crop. MedSight does not ship
+  that palm detector, so the model is used outside its intended pipeline.
+  It reports hand presence reliably when the hand is centred and large in
+  its input, which is the case this device needs, and does not localise a
+  hand elsewhere in the frame.
+
+
+-- CMSIS, STM32N6xx CMSIS Device ---------------------------------------
+
+  Copyright (c) Arm Limited.
+  Copyright (c) STMicroelectronics.
+  Licensed under the Apache License, Version 2.0.
+
+
+-- STM32N6xx HAL/LL drivers, STM32N6570-DK BSP --------------------------
+
+  Copyright (c) STMicroelectronics.
+  Licensed under BSD-3-Clause.
+
+  One BSP file is modified: Drivers/BSP/STM32N6570-DK/
+  stm32n6570_discovery_xspi.c, two changes inside XSPI_NOR_ResetMemory()
+  and BSP_XSPI_NOR_Init(), both bug fixes required for boot from external
+  flash. Documented in docs/THIRD_PARTY_SOFTWARE.md section 8.1.
+
+
+-- STM32 ISP Library, eVision AE/AWB, ST Edge AI runtime ----------------
+-- CenterFace detector, MobileFaceNet embedder --------------------------
+
+  Copyright (c) LACROIX - Impulse and STMicroelectronics.
+  Copyright (c) 2023-2024 STMicroelectronics.
+  Licensed under the ST "Ultimate Liberty" Software License Agreement,
+  SLA0044.
+
+  SLA0044 is not an open-source licence. It permits redistribution for use
+  on ST devices. These components cannot be redistributed under the terms
+  of this repository's own licence, and docs/LICENSING.md section 3.3 sets
+  out what follows from that.
+
+
+-- FatFs R0.15 ---------------------------------------------------------
+
+  Copyright (C) 2022, ChaN, all rights reserved.
+  Distributed under the FatFs licence, a one-clause BSD-style permissive
+  licence. Full text at
+  firmware/Middlewares/Third_Party/FatFs/LICENSE.txt
+
+
+-- DejaVu Sans (rasterised glyph data in the UI assets) ----------------
+
+  Fonts are (c) Bitstream (see below). DejaVu changes are in public
+  domain. Distributed under the Bitstream Vera / DejaVu licence, which
+  permits embedding.
+
+
+-- Pill detector: architecture and training framework ------------------
+
+  Ultralytics YOLOv8, copyright (c) Ultralytics Inc.
+  Licensed under AGPL-3.0.
+
+  THE TRAINED WEIGHTS WERE PRODUCED BY THIS PROJECT, not by Ultralytics.
+  The architecture and the framework that trained them are Ultralytics'.
+
+  This project adopts Ultralytics' own stated reading of its licence and
+  complies with it rather than arguing about whether it is correct: the
+  detector's artefacts - the trained weights, the ONNX exports before and
+  after the head cut, the Neural-ART blob, and the training script that
+  reproduces all of it - are offered under AGPL-3.0, with their complete
+  corresponding source published. docs/LICENSING.md section 3 is the full
+  resolution, including the one residual incompatibility it does not
+  resolve and the build-verified configuration that avoids it.
+
+
+-- Pill detector: training data ----------------------------------------
+
+  "pills" dataset, Roboflow Universe (pills-sxdht, RF100), 451 images.
+  Licensed under CC BY 4.0.
+  Obtained via the HuggingFace mirror Francesco/pills-sxdht.
+
+
+-- GNU Tools for STM32 / newlib-nano -----------------------------------
+
+  Copyright Free Software Foundation; Red Hat, Inc. and newlib
+  contributors; packaging by STMicroelectronics.
+  GCC under GPLv3 with the GCC Runtime Library Exception; newlib under
+  its collection of BSD-style licences. Neither imposes any licence
+  condition on this firmware.
+
+
+-- Not redistributed here ----------------------------------------------
+
+  ST's prebuilt first-stage bootloader ai_fsbl.hex, used only for boot
+  from external flash, is ST's binary and is NOT included in this
+  repository. Acquisition instructions and a SHA-256 fingerprint are in
+  docs/THIRD_PARTY_SOFTWARE.md section 8.2. Evaluating this program over
+  USB does not require it.
